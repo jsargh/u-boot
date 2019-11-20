@@ -466,28 +466,6 @@ int blk_get_device_part_str(const char *ifname, const char *dev_part_str,
 	}
 #endif
 
-#ifdef CONFIG_CMD_UBIFS
-	/*
-	 * Special-case ubi, ubi goes through a mtd, rather than through
-	 * a regular block device.
-	 */
-	if (0 == strcmp(ifname, "ubi")) {
-		if (!ubifs_is_mounted()) {
-			printf("UBIFS not mounted, use ubifsmount to mount volume first!\n");
-			return -1;
-		}
-
-		*dev_desc = NULL;
-		memset(info, 0, sizeof(*info));
-		strcpy((char *)info->type, BOOT_PART_TYPE);
-		strcpy((char *)info->name, "UBI");
-#if CONFIG_IS_ENABLED(PARTITION_UUIDS)
-		info->uuid[0] = 0;
-#endif
-		return 0;
-	}
-#endif
-
 	/* If no dev_part_str, use bootdevice environment variable */
 	if (!dev_part_str || !strlen(dev_part_str) ||
 	    !strcmp(dev_part_str, "-"))

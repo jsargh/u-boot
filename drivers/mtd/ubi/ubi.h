@@ -922,6 +922,10 @@ void ubi_do_get_volume_info(struct ubi_device *ubi, struct ubi_volume *vol,
 int ubi_compare_lebs(struct ubi_device *ubi, const struct ubi_ainf_peb *aeb,
 		      int pnum, const struct ubi_vid_hdr *vid_hdr);
 
+/* ubi-uclass.c */
+extern int ubi_get(int ubi_num, struct udevice **devp);
+extern int ubi_put(int ubi_num);
+
 /* fastmap.c */
 #ifdef CONFIG_MTD_UBI_FASTMAP
 size_t ubi_calc_fm_size(struct ubi_device *ubi);
@@ -933,19 +937,12 @@ static inline int ubi_update_fastmap(struct ubi_device *ubi) { return 0; }
 #endif
 
 /* block.c */
-#ifdef CONFIG_MTD_UBI_BLOCK
-int ubiblock_init(void);
-void ubiblock_exit(void);
-int ubiblock_create(struct ubi_volume_info *vi);
-int ubiblock_remove(struct ubi_volume_info *vi);
-#else
 static inline int ubiblock_init(void) { return 0; }
 static inline void ubiblock_exit(void) {}
-static inline int ubiblock_create(struct ubi_volume_info *vi)
-{
-	return -ENOSYS;
-}
-static inline int ubiblock_remove(struct ubi_volume_info *vi)
+#ifdef CONFIG_MTD_UBI_BLOCK
+int ubiblock_create(int ubi_num, const char *volume);
+#else
+static inline int ubiblock_create(int ubi_num, const char *volume)
 {
 	return -ENOSYS;
 }

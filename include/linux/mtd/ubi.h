@@ -271,7 +271,7 @@ int ubi_flush(int ubi_num, int vol_id, int lnum);
  * This function is the same as the 'ubi_leb_read()' function, but it does not
  * provide the checking capability.
  */
-static inline int ubi_read(struct ubi_volume_desc *desc, int lnum, char *buf,
+static inline int ubi_read(struct ubi_volume_desc *desc, int lnum, void *buf,
 			   int offset, int len)
 {
 	return ubi_leb_read(desc, lnum, buf, offset, len, 0);

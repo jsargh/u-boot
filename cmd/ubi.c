@@ -102,6 +102,32 @@ static int ubi_check(char *name)
 	return 1;
 }
 
+/**
+ * Create BLK device on UBI volume.
+ *
+ * @name: [[ubi]dev]:volume
+ * @return CMD_RET_SUCCESS or CMD_RET_FAILURE
+ */
+static int ubi_block(char *name)
+{
+	const char *device, *volume;
+	int ret, ubi_num = 0;
+	if ((volume = strchr(name, ':'))) {
+		volume++;
+		device = strncmp(name, "ubi", 3) ? name : name + 3;
+		ubi_num = simple_strtoul(device, NULL, 0);
+	} else {
+		volume = name;
+	}
+	ret = ubiblock_create(ubi_num, volume);
+	if (ret < 0) {
+		pr_err("Can't create ubi block device: %s\n", errno_str(ret));
+		return CMD_RET_FAILURE;
+	}
+	printf("%s dev=%d\n", name, ret);
+	return CMD_RET_SUCCESS;
+}
+
 static int verify_mkvol_req(const struct ubi_device *ubi,
 			    const struct ubi_mkvol_req *req)
 {
@@ -541,6 +567,13 @@ static int do_ubi(cmd_tbl_t *cmdtp, int flag, int argc, char * const argv[])
 		return ubi_info(layout);
 	}
 
+	if (strcmp(argv[1], "block") == 0) {
+		if (argc > 2)
+			return ubi_block(argv[2]);
+		printf("No volume name\n");
+		return CMD_RET_FAILURE;
+	}
+
 	if (strcmp(argv[1], "check") == 0) {
 		if (argc > 2)
 			return ubi_check(argv[2]);
@@ -688,6 +721,8 @@ U_BOOT_CMD(
 		" - Write part of a volume from address\n"
 	"ubi read[vol] address volume [size]"
 		" - Read volume to address with size\n"
+	"ubi block volume"
+		" - Create block device on UBI volume\n"
 	"ubi remove[vol] volume"
 		" - Remove volume\n"
 	"ubi skipcheck volume on/off - Set or clear skip_check flag in volume header\n"

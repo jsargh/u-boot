@@ -1112,6 +1112,7 @@ int ubi_detach_mtd_dev(int ubi_num, int anyway)
 	if (!ubi)
 		return -EINVAL;
 
+	ubi_put(ubi_num);
 	spin_lock(&ubi_devices_lock);
 	put_device(&ubi->dev);
 	ubi->ref_count -= 1;
